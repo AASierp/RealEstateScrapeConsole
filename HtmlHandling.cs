@@ -20,12 +20,13 @@ namespace RealEstateScrapeConsole
         {
 
             //Selects nodes by Tag from HTML doc and adds them to a node list (in this case all the URLs).
-            List<string> allPageLinks = htmlDocument.DocumentNode.SelectNodes("//a[@class='listing-price']")?.Select(a => a.GetAttributeValue("href", "")).ToList();
+            HtmlNodeCollection allPageLinks = htmlDocument.DocumentNode.SelectNodes("//div[@data-url]");
 
+            //Isolates actual tag Value
+            List<string> homeListingLinks = allPageLinks.Select(link => link.Attributes["data-url"].Value).ToList();
 
-            //Takes top 10 listing links and concatenates them to produce a usable link.
-            
-            List<string> allListingUrls = allPageLinks.Select(link => "https://www.century21.com" + link).ToList();
+            //concatenates url to make a usable link.
+            List<string> allListingUrls = homeListingLinks.Select(link => "https://www.joehaydenrealtor.com" + link).ToList();
 
             return allListingUrls;
         }
@@ -34,9 +35,13 @@ namespace RealEstateScrapeConsole
         {
             List<HtmlNode> propertyInfoNodes = new List<HtmlNode>
         {
-            htmlDocument.DocumentNode.SelectSingleNode("//h1[@class='h3']"),
-            htmlDocument.DocumentNode.SelectSingleNode("//h2[@class='property-price']"),
-            htmlDocument.DocumentNode.SelectSingleNode("//span[@id='property-specs-sqft']"),
+            htmlDocument.DocumentNode.SelectSingleNode("//div[@class='address']"),
+            htmlDocument.DocumentNode.SelectSingleNode("//span[@class='si-ld-top__price']"),
+            htmlDocument.DocumentNode.SelectSingleNode("//div[@class='si-idx-disclaimer']"),
+            htmlDocument.DocumentNode.SelectSingleNode("//div[@class='si-ld-primary__info clearfix']"),
+            htmlDocument.DocumentNode.SelectSingleNode("//div[@class='si-ld-primary__info clearfix']"),
+            htmlDocument.DocumentNode.SelectSingleNode("//div[@class='si-ld-description js-listing-description']"),
+            htmlDocument.DocumentNode.SelectSingleNode("//div[@class='si-ld-primary__info clearfix']")
         };
 
             PropertyModels propertyModel = new PropertyModels();
@@ -51,13 +56,44 @@ namespace RealEstateScrapeConsole
                 }
             }
 
-            string priceString = listingInfoTrimmed.Count > 1 ? listingInfoTrimmed[1] : "Price not found";
-            string sqftString = listingInfoTrimmed.Count > 2 ? listingInfoTrimmed[2] : "Sqft not found";
-            propertyModel.Address = listingInfoTrimmed.Count > 0 ? listingInfoTrimmed[0] : "Address not found";
-            propertyModel.Price = int.Parse(priceString);
-            propertyModel.SquareFeet = int.Parse(sqftString);
-            
+            if (listingInfoTrimmed.Count >= 7)
+            {
+                propertyModel.Address = listingInfoTrimmed[0];
+                propertyModel.Price = listingInfoTrimmed[1];
+                propertyModel.DateListed = listingInfoTrimmed[2];
+                string sqft = listingInfoTrimmed[3];
+                string lot = listingInfoTrimmed[4];
+                propertyModel.Description = listingInfoTrimmed[5];
+                string county = listingInfoTrimmed[6];
 
+                HtmlNode urlNode = htmlDocument.DocumentNode.SelectSingleNode("//link[@rel='canonical']");
+                string url = urlNode.GetAttributeValue("href", "");
+
+                propertyModel.Url = url;
+
+                string targetWord = "Sq. Feet:";
+                string pattern = $@"{Regex.Escape(targetWord)}\s*([^\s]+)";
+
+                string targetWord2 = "Lot Size:";
+                string pattern2 = $@"\b{Regex.Escape(targetWord2)}\s*([^\s]+)";
+
+                string targetWord3 = "County:";
+                string pattern3 = $@"{Regex.Escape(targetWord3)}\s*([^\s]+)";
+
+                Match match = Regex.Match(sqft, pattern);
+                sqft = match.Groups[1].Value;
+
+                Match match2 = Regex.Match(lot, pattern2);
+                lot = match2.Groups[1].Value;
+
+                Match match3 = Regex.Match(county, pattern3);
+                county = match3.Groups[1].Value;
+
+                propertyModel.SquareFeet = sqft;
+                propertyModel.LotSize = lot;
+                propertyModel.County = county;
+                propertyModel.Url = url;
+            }
             return propertyModel;
         }
     }

@@ -6,7 +6,7 @@ using RealEstateScrapeConsole;
 
 #nullable disable
 
-namespace RealEstateScrapeConsole.Migrations
+namespace ScrapeTest.Migrations
 {
     [DbContext(typeof(PropertyContext))]
     partial class PropertyContextModelSnapshot : ModelSnapshot
@@ -16,39 +16,34 @@ namespace RealEstateScrapeConsole.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
 
-            modelBuilder.Entity("ScrapeTest.PropertyModels", b =>
+            modelBuilder.Entity("RealEstateScrapeConsole.PropertyModels", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("County")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DateListed")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("LotSize")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("LotSize")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Price")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("SquareFeet")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("SquareFeet")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Url")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
