@@ -59,12 +59,29 @@ namespace RealEstateScrapeConsole
             if (listingInfoTrimmed.Count >= 7)
             {
                 propertyModel.Address = listingInfoTrimmed[0];
-                propertyModel.Price = listingInfoTrimmed[1];
+                string price = listingInfoTrimmed[1];
                 propertyModel.DateListed = listingInfoTrimmed[2];
                 string sqft = listingInfoTrimmed[3];
                 string lot = listingInfoTrimmed[4];
                 propertyModel.Description = listingInfoTrimmed[5];
                 string county = listingInfoTrimmed[6];
+
+                string priceNoComma;
+                string priceNoDollar;
+                if (!string.IsNullOrEmpty(price)) 
+                {
+                    priceNoComma = price.Replace(",", "");
+                    priceNoDollar = priceNoComma.Replace("$", "");
+
+                    if(int.TryParse(priceNoDollar, out int priceRaw))
+                    {
+                        propertyModel.Price = priceRaw;
+                    }
+                    else 
+                    {
+                        propertyModel.Price= 0;
+                    }
+                }
 
                 HtmlNode urlNode = htmlDocument.DocumentNode.SelectSingleNode("//link[@rel='canonical']");
                 string url = urlNode.GetAttributeValue("href", "");
@@ -89,11 +106,37 @@ namespace RealEstateScrapeConsole
                 Match match3 = Regex.Match(county, pattern3);
                 county = match3.Groups[1].Value;
 
-                propertyModel.SquareFeet = sqft;
-                propertyModel.LotSize = lot;
+
+                if (double.TryParse(lot, out double lotDouble))
+                {
+                    propertyModel.LotSize = lotDouble;
+                }
+                else
+                {
+                    propertyModel.LotSize = 0;
+                }
+
+                string sqftNoComma;
+               
+                if (!string.IsNullOrEmpty(sqft)) 
+                {
+                    sqftNoComma = sqft.Replace(",", "");
+
+                    if (int.TryParse(sqftNoComma, out int sqftInt))
+                    {
+                        propertyModel.SquareFeet = sqftInt;
+                    }
+                }
+                else
+                {
+                    propertyModel.SquareFeet = 0;
+                }
+                
                 propertyModel.County = county;
                 propertyModel.Url = url;
+              
             }
+
             return propertyModel;
         }
     }

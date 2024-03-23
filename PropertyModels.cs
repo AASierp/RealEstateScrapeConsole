@@ -17,11 +17,11 @@ namespace RealEstateScrapeConsole
 
         public string? Address { get; set; }
 
-        public string? Price { get; set; }
+        public int? Price { get; set; }
 
-        public string? SquareFeet  { get; set; }
+        public int? SquareFeet  { get; set; }
 
-        public string? LotSize { get; set; }
+        public double? LotSize { get; set; }
 
         public string? Description { get; set; }
     }

@@ -11,19 +11,17 @@ namespace RealEstateScrapeConsole
         {
             List<string> completeCountyUrl = new List<string>();
 
+            int pageSize = 3;
+
             foreach (var county in countyList)
             {
-                string countyUrl = $"https://www.joehaydenrealtor.com/{county}-county-ky/";
+                for (int pageNum = 1; pageNum <= pageSize; pageNum++)
+                {
+                    string countyUrl = $"https://www.joehaydenrealtor.com/{county}-county-ky/?pg={pageNum}";
 
-                completeCountyUrl.Add(countyUrl);
+                    completeCountyUrl.Add(countyUrl);
 
-                string countyUrlSecondPage = $"https://www.joehaydenrealtor.com/{county}-county-ky/?pg=2";
-
-                completeCountyUrl.Add(countyUrlSecondPage);
-
-                string countyUrlThirdPage = $"https://www.joehaydenrealtor.com/{county}-county-ky/?pg=3";
-
-                completeCountyUrl.Add(countyUrlThirdPage);
+                }
             }
 
             return completeCountyUrl;
@@ -61,7 +59,7 @@ namespace RealEstateScrapeConsole
                     PropertyModels propertyModel = HtmlHandling.ParseIndividualListingInfo(htmlDocument);
 
                     Console.WriteLine(propertyModel.Address);
-
+                    
                     var existingEntry = propertyContext.PropertyModels.Any(x => x.Url == listingUrl);
 
                     if (!existingEntry)
@@ -70,8 +68,11 @@ namespace RealEstateScrapeConsole
                     }
 
                     await propertyContext.SaveChangesAsync();
-                }             
-            }
+
+                }
+
+				Console.WriteLine("Scraping complete, all properties have beeen added to the Database... \n");
+			}
         }
     }
 }
